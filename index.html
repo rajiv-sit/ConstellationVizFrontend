@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>LEO Constellation Visualizer</title>
+
+    <!-- CesiumJS CDN -->
+    <link href="https://cesium.com/downloads/cesiumjs/releases/1.118/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
+    <script src="https://cesium.com/downloads/cesiumjs/releases/1.118/Build/Cesium/Cesium.js"></script>
+
+    <!-- Satellite.js for TLE propagation -->
+    <script src="https://unpkg.com/satellite.js/dist/satellite.min.js"></script>
+
+    <!-- Stylesheet -->
+    <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+    <!-- Toolbar -->
+    <div id="toolbar">
+        <button id="toggleToolbar">-</button>
+        <div id="toolbarContent">
+            <!-- Constellation Controls -->
+            <section>
+                <h2>Constellation Input</h2>
+                <label for="constellationSelect">Select Constellation:</label>
+                <select id="constellationSelect">
+                    <option value="GPS">GPS</option>
+                    <option value="Galileo">Galileo</option>
+                    <option value="GLONASS">GLONASS</option>
+                    <option value="Starlink">Starlink</option>
+                    <option value="Kuiper">Kuiper</option>
+                </select>
+                <button id="btnGenerate">Generate Constellation</button>
+                <button id="toggleLanding">Show Landing Stations</button>
+            </section>
+
+            <hr />
+
+            <!-- Status Display -->
+            <section>
+                <h3>Status</h3>
+                <div id="status">Waiting for user input...</div>
+            </section>
+
+            <!-- Satellite Info Display -->
+            <section>
+                <h3>Satellite Info</h3>
+                <pre id="satInfo">Click a satellite for info</pre>
+            </section>
+
+            <hr />
+
+            <!-- User Terminals Controls -->
+            <section>
+                <h3>User Terminals</h3>
+                <div>
+                    <span id="utCount">Airborne: 0 | Maritime: 0</span>
+                    <button id="toggleUTs">Show UTs</button>
+                </div>
+                <pre id="utInfo">Click "Show UTs" then select a UT on the globe to display its info. Live AIS/flight feeds can populate maritime and airborne UTs.</pre>
+            </section>
+        </div>
+    </div>
+
+    <!-- Cesium Globe -->
+    <div id="cesiumContainer"></div>
+
+    <!-- Main Application Logic -->
+    <script type="module" src="main.js"></script>
+</body>
+</html>

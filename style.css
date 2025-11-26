@@ -1,0 +1,156 @@
+/* ------------------------------
+   General page styles
+------------------------------ */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
+
+body {
+    margin: 0;
+    overflow: hidden;
+    font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: radial-gradient(120% 120% at 20% 20%, #1b2838 0%, #0b0c10 55%, #07080c 100%);
+    color: #e8edf4;
+}
+
+/* ------------------------------
+   Cesium container
+------------------------------ */
+#cesiumContainer {
+    width: 100vw;
+    height: 100vh;
+}
+
+/* ------------------------------
+   Toolbar styles
+------------------------------ */
+#toolbar {
+    position: absolute;
+    left: 20px;
+    top: 20px;
+    width: 280px;
+    background: rgba(18, 22, 30, 0.92);
+    backdrop-filter: blur(10px);
+    padding: 16px;
+    border-radius: 14px;
+    box-shadow: 0 12px 28px rgba(0,0,0,0.55);
+    z-index: 10;
+    border: 1px solid rgba(102, 252, 241, 0.15);
+    transition: width 0.3s ease, box-shadow 0.3s ease;
+}
+
+#toolbar:hover {
+    box-shadow: 0 16px 36px rgba(0,0,0,0.65);
+}
+
+#toolbar section {
+    margin-bottom: 14px;
+}
+
+/* Toggle button for toolbar */
+#toggleToolbar {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: #1f2833;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #e8edf4;
+    font-size: 16px;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s, transform 0.2s;
+}
+
+#toggleToolbar:hover {
+    background: #66fcf1;
+    color: #0b0c10;
+    transform: scale(1.05);
+}
+
+/* Collapsible toolbar content */
+#toolbarContent.collapsed {
+    display: none;
+}
+
+/* Labels and inputs */
+#toolbar label {
+    font-weight: 600;
+    margin-top: 10px;
+    display: block;
+    font-size: 13px;
+    letter-spacing: 0.2px;
+}
+
+#toolbar input, 
+#toolbar select {
+    width: 100%;
+    margin: 5px 0 12px 0;
+    padding: 9px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    outline: none;
+    background: #1b2432;
+    color: #e8edf4;
+    font-size: 14px;
+    transition: background 0.2s, border-color 0.2s;
+}
+
+#toolbar input:focus, 
+#toolbar select:focus {
+    background: #111722;
+    border-color: #66fcf1;
+}
+
+/* Generate button */
+#btnGenerate, #toggleUTs, #toggleLanding {
+    width: 100%;
+    padding: 10px;
+    font-size: 14px;
+    font-weight: 700;
+    background: linear-gradient(135deg, #45a29e, #66fcf1);
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    color: #0b0c10;
+    transition: transform 0.2s, box-shadow 0.2s, opacity 0.2s;
+}
+
+#btnGenerate:hover, #toggleUTs:hover, #toggleLanding:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 18px rgba(102, 252, 241, 0.35);
+    opacity: 0.95;
+}
+
+/* Status and info panels */
+#status, #satInfo, #utInfo {
+    background: rgba(15, 15, 20, 0.65);
+    padding: 10px;
+    border-radius: 8px;
+    font-size: 13px;
+    white-space: pre-line;
+    max-height: 210px;
+    overflow-y: auto;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Headings */
+#toolbar h2, #toolbar h3 {
+    margin: 8px 0;
+    font-weight: 700;
+    color: #9be8e2;
+    letter-spacing: 0.3px;
+}
+
+/* Scrollbar for info panels */
+#status::-webkit-scrollbar,
+#satInfo::-webkit-scrollbar,
+#utInfo::-webkit-scrollbar {
+    width: 6px;
+}
+
+#status::-webkit-scrollbar-thumb,
+#satInfo::-webkit-scrollbar-thumb,
+#utInfo::-webkit-scrollbar-thumb {
+    background: #45a29e;
+    border-radius: 3px;
+}
