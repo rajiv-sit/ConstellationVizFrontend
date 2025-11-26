@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>LEO Constellation Visualizer</title>
+
+    <!-- CesiumJS CDN -->
+    <link href="https://cesium.com/downloads/cesiumjs/releases/1.118/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
+    <script src="https://cesium.com/downloads/cesiumjs/releases/1.118/Build/Cesium/Cesium.js"></script>
+
+    <!-- Satellite.js for TLE propagation -->
+    <script src="https://unpkg.com/satellite.js/dist/satellite.min.js"></script>
+
+    <!-- Stylesheet -->
+    <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+    <!-- Toolbar -->
+    <div id="toolbar">
+        <button id="toggleToolbar">–</button>
+
+        <div id="toolbarContent">
+            <h2>Constellation Input</h2>
+
+            <label>Select Constellation:</label>
+            <select id="constellationSelect">
+                <option value="GPS">GPS</option>
+                <option value="Galileo">Galileo</option>
+                <option value="GLONASS">GLONASS</option>
+                <option value="Starlink">Starlink</option>
+                <option value="Kuiper">Kuiper</option>
+            </select>
+
+            <button id="btnGenerate">Generate Constellation</button>
+
+            <hr />
+
+            <h3>Status</h3>
+            <div id="status">Waiting for user input...</div>
+
+            <h3>Satellite Info</h3>
+            <pre id="satInfo">Click a satellite for info</pre>
+        </div>
+    </div>
+
+    <!-- Cesium Globe -->
+    <div id="cesiumContainer"></div>
+
+    <!-- Main Application Logic -->
+    <script src="main.js"></script>
+</body>
+</html>
