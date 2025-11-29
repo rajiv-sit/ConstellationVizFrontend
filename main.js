@@ -1,3 +1,5 @@
+import { spawnAirborneTerminals, updateUTMovement, toggleUTVisibility, updateUTCounter, userTerminals } from './ut.js';
+
 // ============================================================
 //  Cesium Initialization
 // ============================================================
@@ -20,7 +22,7 @@ const viewer = new Cesium.Viewer("cesiumContainer", {
 viewer.scene.globe.enableLighting = true;
 
 // ============================================================
-//  Imagery Loader with Fallback to OpenStreetMap
+//  Imagery Loader with Fallback
 // ============================================================
 
 async function loadImagery() {
@@ -35,9 +37,7 @@ async function loadImagery() {
 
     try {
         layers.addImageryProvider(
-            new Cesium.OpenStreetMapImageryProvider({
-                url: "https://a.tile.openstreetmap.org/"
-            })
+            new Cesium.OpenStreetMapImageryProvider({ url: "https://a.tile.openstreetmap.org/" })
         );
         console.log("✔ OpenStreetMap imagery loaded");
         return;
@@ -85,7 +85,6 @@ class Satellite {
 
     computeOrbit(minutes = 90, startTime = new Date()) {
         this.customOrbit = [];
-
         for (let m = 0; m <= minutes; m++) {
             const date = new Date(startTime.getTime() + m * 60000);
             const eci = satellite.propagate(this.satrec, date);
@@ -107,10 +106,7 @@ class Satellite {
         this.entity = viewer.entities.add({
             id: this.name,
             name: this.name,
-            point: {
-                color: Cesium.Color.RED,
-                pixelSize: 6
-            },
+            point: { color: Cesium.Color.RED, pixelSize: 6 },
             label: {
                 text: this.name,
                 font: "12px sans-serif",
@@ -119,7 +115,7 @@ class Satellite {
             },
             customOrbit: this.customOrbit,
             userData: { satrec: this.satrec },
-			isMySatellite: true
+            isMySatellite: true
         });
     }
 
@@ -177,7 +173,6 @@ class Constellation {
                 lines[i + 1].trim(),
                 lines[i + 2].trim()
             );
-
             sat.computeOrbit();
             sat.addToViewer(this.viewer);
             this.satellites.push(sat);
@@ -206,7 +201,6 @@ handler.setInputAction(click => {
     const picked = viewer.scene.pick(click.position);
     const entity = picked?.id || null;
 
-    // If nothing picked or it's not our satellite, remove highlight
     if (!entity?.isMySatellite) {
         if (highlightedOrbit) {
             viewer.entities.remove(highlightedOrbit);
@@ -215,15 +209,8 @@ handler.setInputAction(click => {
         return;
     }
 
-    // Check if this entity is now selected by Cesium (green bounding box)
-    if (viewer.selectedEntity !== entity) {
-        // Not selected → skip sound
-        return;
-    }
+    if (viewer.selectedEntity !== entity) return;
 
-    // ---------------------------------------
-    // ✔ VALID SATELLITE CLICKED → play sound
-    // ---------------------------------------
     const now = Date.now();
     if (now - lastClickTime > CLICK_COOLDOWN) {
         lastClickTime = now;
@@ -231,12 +218,10 @@ handler.setInputAction(click => {
         clickSound.play();
     }
 
-    // Remove previous orbit highlight if any
     if (highlightedOrbit) {
         viewer.entities.remove(highlightedOrbit);
     }
 
-    // Highlight orbit
     highlightedOrbit = viewer.entities.add({
         polyline: {
             positions: entity.customOrbit,
@@ -255,7 +240,6 @@ handler.setInputAction(click => {
 const constellation = new Constellation(viewer);
 
 document.getElementById("btnGenerate").addEventListener("click", async () => {
-
     if (highlightedOrbit) {
         viewer.entities.remove(highlightedOrbit);
         highlightedOrbit = null;
@@ -273,7 +257,6 @@ document.getElementById("btnGenerate").addEventListener("click", async () => {
         Class = StarlinkSatellite;
     } else if (selected === "Kuiper") {
         url = "https://celestrak.org/NORAD/elements/gp.php?GROUP=kuiper&FORMAT=tle";
-        //Class = KuiperSatellite;
     } else if (selected === "GPS") {
         url = "https://celestrak.org/NORAD/elements/gps-ops.txt";
     } else if (selected === "Galileo") {
@@ -287,9 +270,8 @@ document.getElementById("btnGenerate").addEventListener("click", async () => {
 
     document.getElementById("status").innerText =
         `${selected} loaded — ${constellation.satellites.length} satellites`;
-		
-	document.getElementById("satInfo").innerText =
-		"Click a satellite for info";
+
+    document.getElementById("satInfo").innerText = "Click a satellite for info";
 
     viewer.trackedEntity = constellation.satellites[0]?.entity || null;
 });
@@ -299,7 +281,7 @@ document.getElementById("btnGenerate").addEventListener("click", async () => {
 // ============================================================
 
 viewer.clock.clockRange = Cesium.ClockRange.UNBOUNDED;
-viewer.clock.multiplier = 1;   // FIX: real-time day/night
+viewer.clock.multiplier = 1;
 viewer.clock.shouldAnimate = true;
 
 // ============================================================
@@ -312,9 +294,7 @@ viewer.clock.onTick.addEventListener(clock => {
 
     if (!highlightedOrbit || !highlightedOrbit.satelliteId) return;
 
-    const sat = constellation.satellites
-        .find(s => s.entity.id === highlightedOrbit.satelliteId);
-
+    const sat = constellation.satellites.find(s => s.entity.id === highlightedOrbit.satelliteId);
     if (!sat) return;
 
     const pos = sat.entity.position.getValue(clock.currentTime);
@@ -325,28 +305,49 @@ viewer.clock.onTick.addEventListener(clock => {
     const lat = Cesium.Math.toDegrees(carto.latitude).toFixed(2);
     const alt = (carto.height / 1000).toFixed(2);
 
-    // ------------------------------------------------------------------
-    // SPEED CALCULATION (km/h)
-    // ------------------------------------------------------------------
     let speedKmh = 0;
     const now = currentDate.getTime();
 
     if (prevPos && prevTime) {
         const distanceMeters = Cesium.Cartesian3.distance(prevPos, pos);
         const dtHours = (now - prevTime) / (1000 * 3600);
-
-        if (dtHours > 0) {
-            speedKmh = (distanceMeters / 1000) / dtHours;
-        }
+        if (dtHours > 0) speedKmh = (distanceMeters / 1000) / dtHours;
     }
 
     prevPos = Cesium.Cartesian3.clone(pos);
     prevTime = now;
 
     document.getElementById("satInfo").innerText =
-        `ID: ${sat.name}\n` +
-        `Longitude: ${lon}°\n` +
-        `Latitude: ${lat}°\n` +
-        `Altitude: ${alt} km\n` +
-        `Speed: ${speedKmh.toFixed(2)} km/h`;
+        `ID: ${sat.name}\nLongitude: ${lon}°\nLatitude: ${lat}°\nAltitude: ${alt} km\nSpeed: ${speedKmh.toFixed(2)} km/h`;
 });
+
+// ============================================================
+//  Airborne UTs — Spawn, Move, Toggle, Counter
+// ============================================================
+
+spawnAirborneTerminals(viewer);
+updateUTCounter();  // update initial count
+
+viewer.clock.onTick.addEventListener(clock => {
+    updateUTMovement(clock, viewer);
+});
+
+document.getElementById("toggleUTs").addEventListener("click", () => {
+    toggleUTVisibility();
+    updateUTCounter();
+
+    const utInfo = userTerminals.map((ut, idx) => {
+        const pos = ut.position.getValue(viewer.clock.currentTime);
+        if (!pos) return `UT_${idx + 1}: position unknown`;
+
+        const carto = Cesium.Ellipsoid.WGS84.cartesianToCartographic(pos);
+        const lon = Cesium.Math.toDegrees(carto.longitude).toFixed(2);
+        const lat = Cesium.Math.toDegrees(carto.latitude).toFixed(2);
+        const alt = (carto.height / 1000).toFixed(2);
+
+        return `UT_${idx + 1}: Lat ${lat}°, Lon ${lon}°, Alt ${alt} km`;
+    }).join('\n');
+
+    document.getElementById("satInfo").innerText = utInfo;
+});
+
