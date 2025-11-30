@@ -1,10 +1,9 @@
 // -------------------------------------------------------
 // Airborne User Terminal Module
 // -------------------------------------------------------
-
 export const userTerminals = [];
-export const NUM_AIRBORNE_UT = 10;
-let utVisible = true;
+export const NUM_AIRBORNE_UT = 15;
+let utVisible = false; // start hidden
 
 // Create one airborne UT
 export function createAirborneUT(id, viewer) {
@@ -32,33 +31,29 @@ export function createAirborneUT(id, viewer) {
     return entity;
 }
 
-// Spawn several UTs
+// Spawn all UTs
 export function spawnAirborneTerminals(viewer) {
     for (let i = 0; i < NUM_AIRBORNE_UT; i++) {
         const ut = createAirborneUT(i + 1, viewer);
         userTerminals.push(ut);
     }
-    updateUTCounter();
 }
 
-// Update UT movement on every tick
+// Update UT movement (only visible UTs)
 export function updateUTMovement(clock, viewer) {
     for (let ut of userTerminals) {
+        if (!ut.show) continue; // move only visible UTs
+
         const pos = ut.position.getValue(clock.currentTime);
         if (!pos) continue;
 
-        let carto = Cesium.Cartographic.fromCartesian(pos);
+        const carto = Cesium.Cartographic.fromCartesian(pos);
 
-        // Move east + small drift
-        carto.longitude += Cesium.Math.toRadians(0.02);
-        carto.latitude += Cesium.Math.toRadians((Math.random() - 0.5) * 0.01);
+        // slower movement than satellites
+        const newLongitude = carto.longitude + Cesium.Math.toRadians(0.002);
+        const newLatitude = carto.latitude + Cesium.Math.toRadians((Math.random() - 0.5) * 0.001);
 
-        const newPos = Cesium.Cartesian3.fromRadians(
-            carto.longitude,
-            carto.latitude,
-            11000
-        );
-
+        const newPos = Cesium.Cartesian3.fromRadians(newLongitude, newLatitude, 11000);
         const vel = Cesium.Cartesian3.subtract(newPos, pos, new Cesium.Cartesian3());
 
         ut.position = new Cesium.ConstantPositionProperty(newPos);
@@ -72,6 +67,7 @@ export function toggleUTVisibility() {
     for (let ut of userTerminals) {
         ut.show = utVisible;
     }
+    return utVisible; // used to update button text
 }
 
 // Update UT counter in UI
